@@ -117,3 +117,5 @@ dist
 
 # Docker compose with pws
 docker-compose.yml
+
+prisma/migrations
