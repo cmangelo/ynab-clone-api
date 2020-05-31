@@ -23,6 +23,7 @@ model Account {
   id             Int           @id @default(autoincrement())
   user           User          @relation(fields: [userId], references: [id])
   userId         Int
+  name           String
   balance        Float         @default(0)
   workingBalance Float         @default(0)
   transactions   Transaction[]

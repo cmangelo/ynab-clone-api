@@ -1,8 +1,54 @@
+type Query {
+    users: [User!]!
+}
+
+type Mutation {
+    createUser(data: CreateUserInput!): AuthPayload!
+    updateUser(data: UpdateUserInput!): User!
+    loginUser(data: LoginUserInput!): AuthPayload!
+
+    createAccount(data: CreateAccountInput!): Account!
+}
+
 type User {
     id: ID!
     name: String!
+    email: String
 }
 
-type Query {
-    users: [User!]
+type Account {
+    id: ID!
+    user: User
+    name: String
+    balance: Float
+    workingBalance: Float
+    # transactions: [Transaction!]
+    updatedAt: String
+    createdAt: String
+}
+type AuthPayload {
+    token: String!
+    user: User!
+}
+
+input CreateUserInput {
+    name: String!
+    email: String!
+    password: String!
+}
+
+input UpdateUserInput {
+    name: String
+    email: String
+    password: String
+}
+
+input LoginUserInput {
+    email: String!
+    password: String!
+}
+
+input CreateAccountInput {
+    name: String!
+    balance: Float!
 }
