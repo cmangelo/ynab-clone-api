@@ -8,4 +8,4 @@ export const resolvers = {
     Mutation
 };
 
-const fragmentReplacements = extractFragmentReplacements(resolvers);
+export const fragmentReplacements = extractFragmentReplacements(resolvers);

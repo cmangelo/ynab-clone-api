@@ -8,15 +8,15 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  name         String
-  email        String         @unique
-  password     String
-  accounts     Account[]
-  updatedAt    DateTime       @updatedAt
-  createdAt    DateTime       @default(now())
-  RootCategory RootCategory[]
-  Payee        Payee[]
+  id             Int            @id @default(autoincrement())
+  name           String
+  email          String         @unique
+  password       String
+  accounts       Account[]
+  rootCategories RootCategory[]
+  payees         Payee[]
+  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime       @default(now())
 }
 
 model Account {
@@ -24,8 +24,8 @@ model Account {
   user           User          @relation(fields: [userId], references: [id])
   userId         Int
   name           String
-  balance        Float         @default(0)
-  workingBalance Float         @default(0)
+  balance        Int           @default(0)
+  workingBalance Int           @default(0)
   transactions   Transaction[]
   updatedAt      DateTime      @updatedAt
   createdAt      DateTime      @default(now())
@@ -33,9 +33,7 @@ model Account {
 
 model Transaction {
   id        Int                @id @default(autoincrement())
-  amount    Float
-  payee     Payee              @relation(fields: [payeeId], references: [id])
-  payeeId   Int
+  amount    Int
   date      DateTime
   memo      String?
   cleared   Boolean
@@ -53,21 +51,23 @@ model TransactionSlice {
   transactionId Int
   category      Category?   @relation(fields: [categoryId], references: [id])
   categoryId    Int?
-  amount        Float
+  amount        Int
   updatedAt     DateTime    @updatedAt
-  Payee         Payee?      @relation(fields: [payeeId], references: [id])
+  payee         Payee?      @relation(fields: [payeeId], references: [id])
   payeeId       Int?
 }
 
 model Category {
-  id               Int                @id @default(autoincrement())
-  budgeted         Float
-  available        Float
-  parent           RootCategory       @relation(fields: [parentId], references: [id])
-  parentId         Int
-  order            Int
-  updatedAt        DateTime           @updatedAt
-  TransactionSlice TransactionSlice[]
+  id           Int                @id @default(autoincrement())
+  name         String
+  budgeted     Int
+  available    Int
+  parent       RootCategory       @relation(fields: [parentId], references: [id])
+  parentId     Int
+  order        Int
+  updatedAt    DateTime           @updatedAt
+  transactions TransactionSlice[]
+  @@unique([name, parentId])
 }
 
 model RootCategory {
@@ -81,11 +81,12 @@ model RootCategory {
 }
 
 model Payee {
-  id          Int                @id @default(autoincrement())
-  slices      TransactionSlice[]
-  user        User               @relation(fields: [userId], references: [id])
-  userId      Int
-  Transaction Transaction[]
+  id     Int                @id @default(autoincrement())
+  name   String
+  slices TransactionSlice[]
+  user   User               @relation(fields: [userId], references: [id])
+  userId Int
+  @@unique([name, userId])
 }
 
 enum TransactionType {

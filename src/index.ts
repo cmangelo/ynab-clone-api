@@ -9,7 +9,7 @@ const server = new GraphQLServer({
     typeDefs: './src/schema.graphql',
     resolvers,
     context: (request: Request) => createContext(request),
-    // fragmentReplacements
+
 });
 
 server.start(() => {

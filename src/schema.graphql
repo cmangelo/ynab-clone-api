@@ -1,5 +1,10 @@
 type Query {
-    users: [User!]!
+    user: User!
+    users: [User!]! #remove later
+    accounts: [Account!]
+    transactions(query: TransactionQueryParams): [Transaction!]
+    payees: [Payee!]!
+    rootCategories: [RootCategory!]!
 }
 
 type Mutation {
@@ -8,24 +13,75 @@ type Mutation {
     loginUser(data: LoginUserInput!): AuthPayload!
 
     createAccount(data: CreateAccountInput!): Account!
+    updateAccount(data: UpdateAccountInput!): Account!
+
+    createTransaction(data: CreateTransactionInput!): Transaction!
+
+    createCategory(data: CreateCategoryInput!): Category!
+    createPayee(data: CreatePayeeInput!): Payee!
+    createRootCategory(data: CreateRootCategoryInput!): RootCategory!
 }
 
 type User {
     id: ID!
     name: String!
     email: String
+    accounts: [Account!]
+    categories: [RootCategory!]
+    payees: [Payee!]
 }
 
 type Account {
     id: ID!
-    user: User
-    name: String
-    balance: Float
-    workingBalance: Float
-    # transactions: [Transaction!]
-    updatedAt: String
-    createdAt: String
+    user: User!
+    name: String!
+    balance: Int!
+    workingBalance: Int!
+    transactions: [Transaction!]
 }
+
+type Transaction {
+    id: ID!
+    amount: Int!
+    date: String!
+    memo: String
+    cleared: Boolean!
+    slices: [TransactionSlice!]!
+    account: Account!
+    type: TransactionType!
+}
+
+type TransactionSlice {
+    id: ID!
+    transaction: Transaction!
+    category: Category!
+    amount: Int!
+    payee: Payee!
+}
+
+type Category {
+    id: ID!
+    name: String!
+    budgeted: Int!
+    available: Int!
+    parent: RootCategory!
+    transactions: [TransactionSlice!]!
+}
+
+type RootCategory {
+    id: ID!
+    name: String!
+    categories: [Category!]!
+    user: User!    
+}
+
+type Payee {
+    id: ID!
+    name: String!
+    slices: [TransactionSlice!]
+    user: User!
+}
+
 type AuthPayload {
     token: String!
     user: User!
@@ -48,7 +104,54 @@ input LoginUserInput {
     password: String!
 }
 
+input UpdateAccountInput {
+    name: String
+    balance: Int
+}
+
 input CreateAccountInput {
     name: String!
-    balance: Float!
+    balance: Int!
+}
+
+input CreateTransactionInput {
+    amount: Int!
+    date: String!
+    memo: String
+    cleared: Boolean!
+    slices: [CreateTransactionSliceInput!]!
+    accountId: Int!
+    type: TransactionType!
+}
+
+input CreateTransactionSliceInput {
+    categoryId: Int!
+    amount: Int!
+    payeeId: Int!
+}
+
+input CreateCategoryInput {
+    name: String!
+    budgeted: Int!
+    available: Int!
+    parent: Int!
+    order: Int!
+}
+
+input CreateRootCategoryInput {
+    name: String!
+    order: Int!
+}
+
+input CreatePayeeInput {
+    name: String!
+}
+
+input TransactionQueryParams {
+    accountId: Int
+}
+
+enum TransactionType {
+  INCOMING
+  OUTGOING
 }
