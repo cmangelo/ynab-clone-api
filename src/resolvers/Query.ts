@@ -12,8 +12,8 @@ export const Query = {
     accounts(parent: any, args: any, { prisma, request }: Context, info: any) {
         const userId = getUserId(request) as number;
         return prisma.account.findMany({
-            where: { userId },
-            include: { user: true }
+            where: { budget: { userId } },
+            include: { budget: true }
         });
     },
     //be able to filter transactions by account, payee, category
@@ -48,7 +48,7 @@ export const Query = {
     rootCategories(parent: any, args: any, { prisma, request }: Context, info: any) {
         const userId = getUserId(request) as number;
         return prisma.rootCategory.findMany({
-            where: { userId },
+            where: { budget: { userId } },
             include: { categories: true }
         });
     }

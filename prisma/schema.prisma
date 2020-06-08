@@ -8,21 +8,29 @@ datasource db {
 }
 
 model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  budget    Budget?
+  payees    Payee[]
+}
+
+model Budget {
   id             Int            @id @default(autoincrement())
-  name           String
-  email          String         @unique
-  password       String
+  toBeBudgeted   Int
+  user           User           @relation(fields: [userId], references: [id])
+  userId         Int
   accounts       Account[]
   rootCategories RootCategory[]
-  payees         Payee[]
-  updatedAt      DateTime       @updatedAt
-  createdAt      DateTime       @default(now())
 }
 
 model Account {
   id             Int           @id @default(autoincrement())
-  user           User          @relation(fields: [userId], references: [id])
-  userId         Int
+  budget         Budget        @relation(fields: [budgetId], references: [id])
+  budgetId       Int
   name           String
   balance        Int           @default(0)
   workingBalance Int           @default(0)
@@ -75,8 +83,8 @@ model RootCategory {
   name       String
   categories Category[]
   order      Int
-  user       User       @relation(fields: [userId], references: [id])
-  userId     Int
+  budget     Budget     @relation(fields: [budgetId], references: [id])
+  budgetId   Int
   updatedAt  DateTime   @updatedAt
 }
 

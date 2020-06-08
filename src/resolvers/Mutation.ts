@@ -51,11 +51,22 @@ export const Mutation = {
     },
     async createAccount(parent: any, { data }: any, { prisma, request }: Context) {
         const userId = getUserId(request) as number;
+
+        const budgetExists = await prisma.budget.count({
+            where: {
+                id: data.budgetId,
+                userId
+            }
+        });
+
+        if (!budgetExists)
+            throw new Error('Budget does not exist');
+
         return prisma.account.create({
             data: {
-                user: {
+                budget: {
                     connect: {
-                        id: userId
+                        id: data.budgetId
                     }
                 },
                 balance: data.balance,
@@ -73,7 +84,7 @@ export const Mutation = {
         const accountExists = await prisma.account.count({
             where: {
                 id: accountId,
-                userId
+                budget: { userId }
             }
         }) > 0;
 
@@ -89,7 +100,9 @@ export const Mutation = {
                 where: {
                     id: slice.categoryId,
                     parent: {
-                        userId
+                        budget: {
+                            userId
+                        }
                     }
                 }
             });
@@ -132,9 +145,8 @@ export const Mutation = {
         for (let i = 0; i < categoryKeys.length; i++) {
             const categoryId = parseInt(categoryKeys[i]);
             await prisma.category.update({
-                where: {
-                    id: categoryId
-                }, data: {
+                where: { id: categoryId },
+                data: {
                     available: categoryAmounts[categoryId]
                 }
             })
@@ -145,9 +157,7 @@ export const Mutation = {
                 ...data,
                 date,
                 account: {
-                    connect: {
-                        id: accountId
-                    }
+                    connect: { id: accountId }
                 },
                 slices: {
                     create: slices
@@ -158,16 +168,36 @@ export const Mutation = {
         });
     },
     async createRootCategory(parent: any, { data }: any, { prisma, request }: Context) {
-        const userId = getUserId(request);
+        const userId = getUserId(request) as number;
+
+        const budgetExists = await prisma.budget.count({
+            where: {
+                userId
+            }
+        }) > 0;
+
         return prisma.rootCategory.create({
             data: {
                 ...data,
-                user: {
-                    connect: {
-                        id: userId
-                    }
-                }
+                budget: data.budgetId
             }
+        });
+    },
+    async updateRootCategory(parent: any, { data }: any, { prisma, request }: Context) {
+        const userId = getUserId(request) as number;
+        const rootCategoryExists = await prisma.rootCategory.count({
+            where: {
+                id: data.id,
+                budget: { userId }
+            }
+        }) > 0;
+
+        if (!rootCategoryExists)
+            throw new Error('Could not update root category');
+
+        return prisma.rootCategory.update({
+            where: { id: data.id },
+            data
         });
     },
     async createCategory(parent: any, { data }: any, { prisma, request }: Context) {
@@ -175,7 +205,7 @@ export const Mutation = {
 
         const rootCategoryExists = await prisma.rootCategory.count({
             where: {
-                userId,
+                budget: { userId },
                 id: data.parent
             }
         }) > 0;
@@ -194,7 +224,7 @@ export const Mutation = {
             }
         });
     },
-    async createPayee(parent: any, { data }: any, { prisma, request }: Context) {
+    createPayee(parent: any, { data }: any, { prisma, request }: Context) {
         const userId = getUserId(request) as number;
         return prisma.payee.create({
             data: {
@@ -205,6 +235,37 @@ export const Mutation = {
                     }
                 }
             }
+        });
+    },
+    async updatePayee(parent: any, { data }: any, { prisma, request }: Context) {
+        const userId = getUserId(request) as number;
+        const payeeExists = await prisma.payee.count({ where: { id: data.id, userId } }) > 0;
+        if (!payeeExists)
+            throw new Error('Could not update payee');
+        return prisma.payee.update({
+            where: { id: data.id },
+            data
+        });
+    },
+    async updateCategory(parent: any, { data }: any, { prisma, request }: Context) {
+        const userId = getUserId(request) as number;
+        const categoryExists = await prisma.category.count({
+            where: {
+                id: data.id,
+                parent: {
+                    budget: {
+                        userId
+                    }
+                }
+            }
+        }) > 0;
+
+        if (!categoryExists)
+            throw new Error('Could not update category');
+
+        return prisma.category.update({
+            where: { id: data.id },
+            data
         });
     }
 }
