@@ -183,11 +183,11 @@ export const Mutation = {
             }
         });
     },
-    async updateRootCategory(parent: any, { data }: any, { prisma, request }: Context) {
+    async updateRootCategory(parent: any, { id, data }: any, { prisma, request }: Context) {
         const userId = getUserId(request) as number;
         const rootCategoryExists = await prisma.rootCategory.count({
             where: {
-                id: data.id,
+                id,
                 budget: { userId }
             }
         }) > 0;
@@ -196,7 +196,7 @@ export const Mutation = {
             throw new Error('Could not update root category');
 
         return prisma.rootCategory.update({
-            where: { id: data.id },
+            where: { id },
             data
         });
     },
@@ -237,21 +237,21 @@ export const Mutation = {
             }
         });
     },
-    async updatePayee(parent: any, { data }: any, { prisma, request }: Context) {
+    async updatePayee(parent: any, { id, data }: any, { prisma, request }: Context) {
         const userId = getUserId(request) as number;
-        const payeeExists = await prisma.payee.count({ where: { id: data.id, userId } }) > 0;
+        const payeeExists = await prisma.payee.count({ where: { id, userId } }) > 0;
         if (!payeeExists)
             throw new Error('Could not update payee');
         return prisma.payee.update({
-            where: { id: data.id },
+            where: { id },
             data
         });
     },
-    async updateCategory(parent: any, { data }: any, { prisma, request }: Context) {
+    async updateCategory(parent: any, { id, data }: any, { prisma, request }: Context) {
         const userId = getUserId(request) as number;
         const categoryExists = await prisma.category.count({
             where: {
-                id: data.id,
+                id,
                 parent: {
                     budget: {
                         userId
@@ -264,7 +264,7 @@ export const Mutation = {
             throw new Error('Could not update category');
 
         return prisma.category.update({
-            where: { id: data.id },
+            where: { id },
             data
         });
     }

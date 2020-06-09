@@ -45,11 +45,31 @@ export const Query = {
         const userId = getUserId(request) as number;
         return prisma.payee.findMany({ where: { userId } });
     },
-    rootCategories(parent: any, args: any, { prisma, request }: Context, info: any) {
+    budgets(parent: any, args: any, { prisma, request }: Context) {
         const userId = getUserId(request) as number;
-        return prisma.rootCategory.findMany({
-            where: { budget: { userId } },
-            include: { categories: true }
+        return prisma.budget.findMany({ where: { userId } });
+    },
+    async budget(parent: any, args: any, { prisma, request }: Context) {
+        const userId = getUserId(request) as number;
+        const budgetExists = await prisma.budget.count({
+            where: {
+                userId,
+                id: args.id
+            }
+        }) > 0;
+
+        if (!budgetExists)
+            throw new Error('Budget does not exist');
+
+        return prisma.budget.findOne({
+            where: { id: args.id },
+            include: {
+                rootCategories: {
+                    include: {
+                        categories: true
+                    }
+                }
+            }
         });
     }
 };

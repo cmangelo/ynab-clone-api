@@ -4,7 +4,8 @@ type Query {
     accounts: [Account!]
     transactions(query: TransactionQueryParams): [Transaction!]
     payees: [Payee!]!
-    rootCategories: [RootCategory!]!
+    budgets: [Budget!]!
+    budget(id: Int!): Budget!
 }
 
 type Mutation {
@@ -13,18 +14,18 @@ type Mutation {
     loginUser(data: LoginUserInput!): AuthPayload!
 
     createAccount(data: CreateAccountInput!): Account!
-    updateAccount(data: UpdateAccountInput!): Account!
+    updateAccount(id: Int!, data: UpdateAccountInput!): Account!
 
     createTransaction(data: CreateTransactionInput!): Transaction!
 
     createCategory(data: CreateCategoryInput!): Category!
-    updateCategory(data: UpdateCategoryInput!): Category!
+    updateCategory(id: Int!, data: UpdateCategoryInput!): Category!
 
     createPayee(data: CreatePayeeInput!): Payee!
-    updatePayee(data: UpdatePayeeInput!): Payee!
+    updatePayee(id: Int!, data: UpdatePayeeInput!): Payee!
     
     createRootCategory(data: CreateRootCategoryInput!): RootCategory!
-    updateRootCategory(data: UpdateRootCategoryInput!): RootCategory!
+    updateRootCategory(id: Int!, data: UpdateRootCategoryInput!): RootCategory!
 }
 
 type User {
@@ -85,6 +86,8 @@ type RootCategory {
     name: String!
     categories: [Category!]!
     user: User!
+    budgeted: Int!
+    available: Int!
 }
 
 type Payee {
@@ -123,7 +126,6 @@ input CreateAccountInput {
 }
 
 input UpdateAccountInput {
-    id: Int!
     name: String
     balance: Int
 }
@@ -153,7 +155,6 @@ input CreateCategoryInput {
 }
 
 input UpdateCategoryInput {
-    id: Int!
     name: String
     budgeted: Int
     parent: Int
@@ -167,7 +168,6 @@ input CreateRootCategoryInput {
 }
 
 input UpdateRootCategoryInput {
-    id: Int!
     name: String
     order: Int
 }
@@ -177,7 +177,6 @@ input CreatePayeeInput {
 }
 
 input UpdatePayeeInput {
-    id: Int!
     name: String
 }
 
